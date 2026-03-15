@@ -19,15 +19,17 @@ namespace compiler_project
         private void button1_Click(object sender, EventArgs e)
         {
             string input = textBox1.Text + "";
-            string keywords = @"\b(if|then|elseif|string|int|float|return|else|endl|until|repeat|read|write)\b";
-            string identifiers = @"\b[a-zA-Z][a-zA-Z0-9]*\b";
-            string numbers = @"\b\d+(\.\d+)?\b";
-            string strings = "\"[^\"]*\"";
-            string functionCalls = @"\b[a-zA-Z][a-zA-Z0-9]*\s*\([^)]*\)";
-            string comments = @"/\*.*?\*/";
-            string operators = @":=|[+\-*/]";
+            string keywords = @"\b(if|then|elseif|string|int|float|return|else|endl|until|repeat|read|write)\b"; 
+            string identifiers = @"\b[a-zA-Z][a-zA-Z0-9]*\b"; 
+            string numbers = @"\b\d+(\.\d+)?\b"; 
+            string strings = "\"[^\"]*\""; 
+            string functionCalls = @"\b[a-zA-Z][a-zA-Z0-9]*\s*\([^)]*\)"; 
+            string comments = @"/\*.*?\*/"; 
+            string arethmatic_operators = @"[+\-*/]"; 
+            string assignment_operators = @":=";
             string symbols = @"[;(),]";
-            string masterPattern = $"{comments}|{strings}|{functionCalls}|{operators}|{symbols}|{identifiers}|{numbers}|{keywords}";
+            string term = $@"({functionCalls}|{numbers}|{identifiers})";
+            string masterPattern = $"{comments}|{strings}|{functionCalls}|{arethmatic_operators}|{symbols}|{identifiers}|{numbers}|{keywords}";
 
 
             DataTable dt = new DataTable();
@@ -50,7 +52,7 @@ namespace compiler_project
                     type = "Function_Call";
                 else if (Regex.IsMatch(lex, keywords)) { 
                     if (lex == "int" || lex == "float" || lex == "string")
-                        type = "Datatype";
+                        type = "Datatype"; 
                     else
                         type = "Reserved_Keyword";
                 }
@@ -60,11 +62,10 @@ namespace compiler_project
                     type = "Number";
                 else if (Regex.IsMatch(lex, identifiers))
                     type = "Identifier";
-                else if (Regex.IsMatch(lex, operators))
+                else if (Regex.IsMatch(lex, arethmatic_operators))
                 {
                     switch (lex)
                     {
-                        case ":=": type = "Assignment_Op"; break;
                         case "+": type = "Plus_Op"; break;
                         case "-": type = "Minus_Op"; break;
                         case "*": type = "Multiply_Op"; break;
