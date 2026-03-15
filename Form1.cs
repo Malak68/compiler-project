@@ -1,0 +1,95 @@
+using System.Data;
+using System.Text.RegularExpressions;
+
+namespace compiler_project
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {  
+
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string input = textBox1.Text + "";
+            string keywords = @"\b(if|then|elseif|string|int|float|return|else|endl|until|repeat|read|write)\b";
+            string identifiers = @"\b[a-zA-Z][a-zA-Z0-9]*\b";
+            string numbers = @"\b\d+(\.\d+)?\b";
+            string strings = "\"[^\"]*\"";
+            string functionCalls = @"\b[a-zA-Z][a-zA-Z0-9]*\s*\([^)]*\)";
+            string comments = @"/\*.*?\*/";
+            string operators = @":=|[+\-*/]";
+            string symbols = @"[;(),]";
+            string masterPattern = $"{comments}|{strings}|{functionCalls}|{operators}|{symbols}|{identifiers}|{numbers}|{keywords}";
+
+
+            DataTable dt = new DataTable();
+            dt.Columns.Add("Lexeme");
+            dt.Columns.Add("Token Type");
+
+
+            MatchCollection matches = Regex.Matches(input, masterPattern);
+            foreach (Match m in matches)
+            {
+                string lex = m.Value;
+                string type = "";
+
+
+                if (Regex.IsMatch(lex, comments))
+                    type = "Comment_Statement";
+                else if (Regex.IsMatch(lex, strings))
+                    type = "String";
+                else if (Regex.IsMatch(lex, functionCalls))
+                    type = "Function_Call";
+                else if (Regex.IsMatch(lex, keywords)) { 
+                    if (lex == "int" || lex == "float" || lex == "string")
+                        type = "Datatype";
+                    else
+                        type = "Reserved_Keyword";
+                }
+                   
+               
+                else if (Regex.IsMatch(lex, numbers))
+                    type = "Number";
+                else if (Regex.IsMatch(lex, identifiers))
+                    type = "Identifier";
+                else if (Regex.IsMatch(lex, operators))
+                {
+                    switch (lex)
+                    {
+                        case ":=": type = "Assignment_Op"; break;
+                        case "+": type = "Plus_Op"; break;
+                        case "-": type = "Minus_Op"; break;
+                        case "*": type = "Multiply_Op"; break;
+                        case "/": type = "Divide_Op"; break;
+                        default: type = "Operator"; break;
+                    }
+                }
+                else if (Regex.IsMatch(lex, symbols))
+                {
+                    switch (lex)
+                    {
+                        case ";": type = "Semicolon"; break;
+                        case "(": type = "Left_Paren"; break;
+                        case ")": type = "Right_Paren"; break;
+                        case ",": type = "Comma"; break;
+                        default: type = "Symbol"; break;
+                    }
+                }
+                else
+                    type = "Unknown";
+
+                dt.Rows.Add(lex, type);
+            }
+            dataGridView1.DataSource = dt;
+        }
+    }
+}
+
